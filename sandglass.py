@@ -11,6 +11,33 @@ import datetime as dt
 from datetime import date
 import time
 
+def display_project_list(epic_list,display_stats):
+	print "Epic information"
+	for epic in epic_list:
+		if "epic_name" in projects[epic]:
+			print "Project name: " + projects[epic]["epic_name"]
+		if "start_date" in projects[epic]:
+			print "Start date: " + projects[epic]["start_date"]
+		if "exp_end_date" in projects[epic]:
+			print "Expected end date: " + projects[epic]["exp_end_date"]
+		if "act_end_date" in projects[epic]:
+			print "Actual end date: " + projects[epic]["act_end_date"]
+		if display_stats:
+			display_project_stats(epic)
+		else:
+			print "Epic link: " + epic
+		print "----------------"
+
+def display_project_stats(epic):
+	if "start_date" in projects[epic] and "exp_end_date" in projects[epic]:
+		start = dt.date(int(projects[epic]["start_date"].split("/")[2]), int(projects[epic]["start_date"].split("/")[0]), int(projects[epic]["start_date"].split("/")[1]))
+		end = dt.date(int(projects[epic]["exp_end_date"].split("/")[2]), int(projects[epic]["exp_end_date"].split("/")[0]), int(projects[epic]["exp_end_date"].split("/")[1]))
+		print "Expected business days elapsed: %i" % np.busday_count(start,end)
+	if "start_date" in projects[epic] and "act_end_date" in projects[epic]:
+		start = dt.date(int(projects[epic]["start_date"].split("/")[2]), int(projects[epic]["start_date"].split("/")[0]), int(projects[epic]["start_date"].split("/")[1]))
+		end = dt.date(int(projects[epic]["act_end_date"].split("/")[2]), int(projects[epic]["act_end_date"].split("/")[0]), int(projects[epic]["act_end_date"].split("/")[1]))
+		print "Actual business days elapsed: %i" % np.busday_count(start,end)
+
 with open("projects.txt") as project_file:
 	project_file = project_file.read()
 	projects = json.loads(project_file)
@@ -44,20 +71,8 @@ while(True):
 	
 	elif response == "e":
 		# Display all projects
-		print "Existing projects:"
 		epic_list = projects.keys()
-		print "----------------"
-		for l in epic_list:
-			print "Epic link: " + l
-			if "epic_name" in projects[l]:
-				print "Project name: " + projects[l]["epic_name"]
-			if "start_date" in projects[l]:
-				print "Start date: " + projects[l]["start_date"]
-			if "exp_end_date" in projects[l]:
-				print "Expected end date: " + projects[l]["exp_end_date"]
-			if "act_end_date" in projects[l]:
-				print "Actual end date: " + projects[l]["act_end_date"]
-			print "----------------"
+		display_project_list(epic_list,False)
 		
 		# Prompt user for the field to edit and display current entry
 		edit_project = raw_input("Which epic would you like to edit? (type the epic link): ")
@@ -80,26 +95,9 @@ while(True):
 	else:
 		print "Invalid input. Please try again."
 
-print "Epic information / stats"
+# Display the new contents of projects.txt
 epic_list = projects.keys()
-for l in epic_list:
-	if "epic_name" in projects[l]:
-		print "Project name: " + projects[l]["epic_name"]
-	if "start_date" in projects[l]:
-		print "Start date: " + projects[l]["start_date"]
-	if "exp_end_date" in projects[l]:
-		print "Expected end date: " + projects[l]["exp_end_date"]
-	if "act_end_date" in projects[l]:
-		print "Actual end date: " + projects[l]["act_end_date"]
-	if "start_date" in projects[l] and "exp_end_date" in projects[l]:
-		start = dt.date(int(projects[l]["start_date"].split("/")[2]), int(projects[l]["start_date"].split("/")[0]), int(projects[l]["start_date"].split("/")[1]))
-		end = dt.date(int(projects[l]["exp_end_date"].split("/")[2]), int(projects[l]["exp_end_date"].split("/")[0]), int(projects[l]["exp_end_date"].split("/")[1]))
-		print "Expected business days elapsed: %i" % np.busday_count(start,end)
-	if "start_date" in projects[l] and "act_end_date" in projects[l]:
-		start = dt.date(int(projects[l]["start_date"].split("/")[2]), int(projects[l]["start_date"].split("/")[0]), int(projects[l]["start_date"].split("/")[1]))
-		end = dt.date(int(projects[l]["act_end_date"].split("/")[2]), int(projects[l]["act_end_date"].split("/")[0]), int(projects[l]["act_end_date"].split("/")[1]))
-		print "Actual business days elapsed: %i" % np.busday_count(start,end)
-	print "----------------"
+display_project_list(epic_list,True)
 
 with open("projects.txt","w") as project_file:
 	# Update projects.txt with new content
