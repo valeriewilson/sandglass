@@ -1,4 +1,4 @@
-# sandglass.py - The executable file that prompts the user to input information for new or existing projects
+# sandglass.py - The executable file that prompts the user to input information for new or existing projects and displays statistics about each project on exiting
 
 # Planned additions: 
 #   1. Invoke the Jira API to retrieve information about epic status
@@ -12,7 +12,7 @@ from datetime import date
 import time
 
 def display_project_list(epic_list,display_stats):
-	print "Epic information"
+	print "Epic information:"
 	for epic in epic_list:
 		if "epic_name" in projects[epic]:
 			print "Project name: " + projects[epic]["epic_name"]
@@ -29,14 +29,31 @@ def display_project_list(epic_list,display_stats):
 		print "----------------"
 
 def display_project_stats(epic):
-	if "start_date" in projects[epic] and "exp_end_date" in projects[epic]:
+	if "start_date" in projects[epic]:
 		start = dt.date(int(projects[epic]["start_date"].split("/")[2]), int(projects[epic]["start_date"].split("/")[0]), int(projects[epic]["start_date"].split("/")[1]))
-		end = dt.date(int(projects[epic]["exp_end_date"].split("/")[2]), int(projects[epic]["exp_end_date"].split("/")[0]), int(projects[epic]["exp_end_date"].split("/")[1]))
-		print "Expected business days elapsed: %i" % np.busday_count(start,end)
-	if "start_date" in projects[epic] and "act_end_date" in projects[epic]:
-		start = dt.date(int(projects[epic]["start_date"].split("/")[2]), int(projects[epic]["start_date"].split("/")[0]), int(projects[epic]["start_date"].split("/")[1]))
-		end = dt.date(int(projects[epic]["act_end_date"].split("/")[2]), int(projects[epic]["act_end_date"].split("/")[0]), int(projects[epic]["act_end_date"].split("/")[1]))
-		print "Actual business days elapsed: %i" % np.busday_count(start,end)
+		if "exp_end_date" in projects[epic]:
+			end = dt.date(int(projects[epic]["exp_end_date"].split("/")[2]), int(projects[epic]["exp_end_date"].split("/")[0]), int(projects[epic]["exp_end_date"].split("/")[1]))
+			print "Expected business days elapsed: %i" % np.busday_count(start,end)
+		if "act_end_date" in projects[epic]:
+			end = dt.date(int(projects[epic]["act_end_date"].split("/")[2]), int(projects[epic]["act_end_date"].split("/")[0]), int(projects[epic]["act_end_date"].split("/")[1]))
+			print "Actual business days elapsed: %i" % np.busday_count(start,end)
+
+def create_project(epic_list):
+	projects.update({new_epic:{}})
+	print "--New entry--"
+	print "Epic link: " + new_epic
+	if new_epic_name != "":
+		projects[new_epic].update({"epic_name":new_epic_name})
+		print "Project name: " + new_epic_name
+	if new_start_date != "":
+		projects[new_epic].update({"start_date":new_start_date})
+		print "Start date: " + new_start_date
+	if new_exp_end_date != "":
+		projects[new_epic].update({"exp_end_date":new_exp_end_date})
+		print "Planned end date: " + new_exp_end_date
+	if new_act_end_date != "":
+		projects[new_epic].update({"act_end_date":new_act_end_date})
+		print "Actual end date: " + new_act_end_date
 
 with open("projects.txt") as project_file:
 	project_file = project_file.read()
@@ -46,33 +63,19 @@ while(True):
 	response = raw_input('Do you want to add information about a new or existing project, or are you done with the program? (type "n" for new, "e" for existing, or "d" for done): ')
 	if response == "n":
 		# Prompt user for information about new project
-		l = raw_input("What is the epic link?: ")
-		n = raw_input("What is the project name?: ")
-		s = raw_input("What is the start date (MM/DD/YYYY)?: ")
-		e = raw_input("What is the planned end date (MM/DD/YYYY)?: ")
-		a = raw_input("What is the actual end date (MM/DD/YYYY)?: ")
+		new_epic = raw_input("What is the epic link?: ")
+		new_epic_name = raw_input("What is the project name?: ")
+		new_start_date = raw_input("What is the start date (MM/DD/YYYY)?: ")
+		new_exp_end_date = raw_input("What is the planned end date (MM/DD/YYYY)?: ")
+		new_act_end_date = raw_input("What is the actual end date (MM/DD/YYYY)?: ")
 		
 		# Add information to projects variable (if provided) and display information added
-		projects.update({l:{}})
-		print "--New entry--"
-		print "Epic link: " + l
-		if n != "":
-			projects[l].update({"epic_name":n})
-			print "Project name: " + n
-		if s != "":
-			projects[l].update({"start_date":s})
-			print "Start date: " + s
-		if e != "":
-			projects[l].update({"exp_end_date":e})
-			print "Planned end date: " + e
-		if a != "":
-			projects[l].update({"act_end_date":a})
-			print "Actual end date: " + a
+		create_project(projects)
 	
 	elif response == "e":
 		# Display all projects
 		epic_list = projects.keys()
-		display_project_list(epic_list,False)
+		display_project_list(epic_list,display_stats=False)
 		
 		# Prompt user for the field to edit and display current entry
 		edit_project = raw_input("Which epic would you like to edit? (type the epic link): ")
@@ -97,7 +100,7 @@ while(True):
 
 # Display the new contents of projects.txt
 epic_list = projects.keys()
-display_project_list(epic_list,True)
+display_project_list(epic_list,display_stats=True)
 
 with open("projects.txt","w") as project_file:
 	# Update projects.txt with new content
