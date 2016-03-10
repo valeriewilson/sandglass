@@ -4,6 +4,7 @@
 #   1. Invoke the Jira API to retrieve information about epic status
 #   2. Display statistics on each epic after the user exits the program
 #   3. Use the information obtained through the prompt to display epic information in a GUI
+#   4. Sort projects by exp_end_date
 
 import json
 import numpy as np
@@ -31,12 +32,40 @@ def display_project_list(epic_list,display_stats):
 def display_project_stats(epic):
 	if "start_date" in projects[epic]:
 		start = dt.date(int(projects[epic]["start_date"].split("/")[2]), int(projects[epic]["start_date"].split("/")[0]), int(projects[epic]["start_date"].split("/")[1]))
+		
+		# Expected business days elapsed
 		if "exp_end_date" in projects[epic]:
 			end = dt.date(int(projects[epic]["exp_end_date"].split("/")[2]), int(projects[epic]["exp_end_date"].split("/")[0]), int(projects[epic]["exp_end_date"].split("/")[1]))
 			print "Expected business days elapsed: %i" % np.busday_count(start,end)
+		
+		# Actual business days elapsed (using act_end_date if project is completed)
 		if "act_end_date" in projects[epic]:
 			end = dt.date(int(projects[epic]["act_end_date"].split("/")[2]), int(projects[epic]["act_end_date"].split("/")[0]), int(projects[epic]["act_end_date"].split("/")[1]))
 			print "Actual business days elapsed: %i" % np.busday_count(start,end)
+		else:
+			today = dt.date.today()
+			print "Business days elapsed to date: %i" % np.busday_count(start,today)
+
+		# Business days behind schedule
+			# If actual end date is given
+			# 	If > planned end date: (actual end date) - (planned end date)
+			# 	Else: 0
+			# If actual end date is not given
+			# 	If today > planned end date: (today) - (planned end date)
+			# 	Else: 0
+
+		# Jira epic % complete
+			# [epicStats][percentageCompleted]
+
+		# Accuracy of Jira estimate
+			# [epicStats][percentageEstimated] value in percentage format (integer)
+
+		# Jira expected end date - simple model
+			# start_date + [(today) - (start date)] / [epicStats][percentageCompleted]
+
+		# Jira remaining time elapsed
+			# If actual end date is given: 0
+			# If actual end date is not given: (Jira expected end date) - (today)
 
 def create_project(epic_list):
 	projects.update({new_epic:{}})
