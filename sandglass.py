@@ -55,6 +55,18 @@ def create_project(epic_list):
 		projects[new_epic].update({"act_end_date":new_act_end_date})
 		print "Actual end date: " + new_act_end_date
 
+def edit_project(epic,field):
+	if field in ("epic_name","start_date","exp_end_date","act_end_date"):
+		if field in projects[epic].keys():
+			print "Current value: %s" % projects[epic][field]
+			new_value = raw_input("What is the new value?: ")
+		else:
+			new_value = raw_input("What is the value for this field?: ")
+		projects[epic][field] = new_value
+		print "New value: %s" % projects[epic][field]
+	else:
+		print "%s is an invalid field option." % field
+
 with open("projects.txt") as project_file:
 	project_file = project_file.read()
 	projects = json.loads(project_file)
@@ -78,20 +90,12 @@ while(True):
 		display_project_list(epic_list,display_stats=False)
 		
 		# Prompt user for the field to edit and display current entry
-		edit_project = raw_input("Which epic would you like to edit? (type the epic link): ")
+		edit_epic = raw_input("Which epic would you like to edit? (type the epic link): ")
 		edit_field = raw_input('Which field would you like to add or update - epic_name, start_date, exp_end_date, or act_end_date?: ')
 		
 		# Allow the user to input the new/updated value, save to projects variable, and output value
-		if edit_field in ("epic_name","start_date","exp_end_date","act_end_date"):
-			if edit_field in projects[edit_project].keys():
-				print "Current value: %s" % projects[edit_project][edit_field]
-				new_value = raw_input("What is the new value?: ")
-			else:
-				new_value = raw_input("What is the value for this field?: ")
-			projects[edit_project][edit_field] = new_value
-			print "New value: %s" % projects[edit_project][edit_field]
-		else:
-			print "%s is an invalid field option." % edit_field
+		edit_project(edit_epic,edit_field)
+
 	elif response == "d":
 		# Exit the program
 		break
