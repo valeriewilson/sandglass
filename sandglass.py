@@ -1,15 +1,13 @@
 # sandglass.py - The executable file that prompts the user to input information for new or existing projects and displays statistics about each project on exiting
 
 # Planned additions: 
-#   1. Invoke the Jira API to retrieve information about epic status
-#   2. Display statistics on each epic after the user exits the program
-#   3. Use the information obtained through the prompt to display epic information in a GUI
-#   4. Sort projects by exp_end_date
+#   1. Use the information obtained through the prompt to display epic information in a GUI
+#   2. Sort projects by exp_end_date
 
 import json
 import numpy as np
 import datetime as dt
-from datetime import date
+import datetime
 import time
 
 def display_project_list(epic_list,display_stats):
@@ -28,46 +26,6 @@ def display_project_list(epic_list,display_stats):
 		else:
 			print "Epic link: " + epic
 		print "----------------"
-
-def display_project_stats(epic):
-	if "start_date" in projects[epic]:
-		start = dt.date(int(projects[epic]["start_date"].split("/")[2]), int(projects[epic]["start_date"].split("/")[0]), int(projects[epic]["start_date"].split("/")[1]))
-		exp_end = dt.date(int(projects[epic]["exp_end_date"].split("/")[2]), int(projects[epic]["exp_end_date"].split("/")[0]), int(projects[epic]["exp_end_date"].split("/")[1]))
-		today = dt.date.today()	
-
-		# Expected business days elapsed
-		if "exp_end_date" in projects[epic]:
-			print "Expected business days elapsed: %i" % np.busday_count(start,exp_end)
-		
-		# Actual business days elapsed (using act_end_date if project is completed)
-		if "act_end_date" in projects[epic]:
-			act_end = dt.date(int(projects[epic]["act_end_date"].split("/")[2]), int(projects[epic]["act_end_date"].split("/")[0]), int(projects[epic]["act_end_date"].split("/")[1]))
-			print "Actual business days elapsed: %i" % np.busday_count(start,act_end)
-			if act_end > exp_end:
-				days_behind = np.busday_count(exp_end,act_end)
-			else:
-				days_behind = 0
-			print "Business days behind schedule: %i" % days_behind
-		else:
-			print "Business days elapsed to date: %i" % np.busday_count(start,today)
-			if today > exp_end:
-				 days_behind = np.busday_count(exp_end,today)
-			else:
-				days_behind = 0
-			print "Business days behind schedule: %i" % days_behind
-
-		# Jira epic % complete
-			# [epicStats][percentageCompleted]
-
-		# Accuracy of Jira estimate
-			# [epicStats][percentageEstimated] value in percentage format (integer)
-
-		# Jira expected end date - simple model
-			# start_date + [(today) - (start date)] / [epicStats][percentageCompleted]
-
-		# Jira remaining time elapsed
-			# If actual end date is given: 0
-			# If actual end date is not given: (Jira expected end date) - (today)
 
 def create_project(epic_list):
 	projects.update({new_epic:{}})
@@ -97,6 +55,63 @@ def edit_project(epic,field):
 		print "New value: %s" % projects[epic][field]
 	else:
 		print "%s is an invalid field option." % field
+
+def display_project_stats(epic):
+	if "start_date" in projects[epic]:
+		start = dt.date(int(projects[epic]["start_date"].split("/")[2]), int(projects[epic]["start_date"].split("/")[0]), int(projects[epic]["start_date"].split("/")[1]))
+		today = dt.date.today()	
+		percent_completed = 78
+		# percent_completed = {Jira_API_call}.[epicStats][percentageCompleted]
+		percent_estimated = 45
+		# percent_estimated = {Jira_API_call}.[epicStats][percentageEstimated]
+
+		# Expected business days elapsed
+		if "exp_end_date" in projects[epic]:
+			exp_end = dt.date(int(projects[epic]["exp_end_date"].split("/")[2]), int(projects[epic]["exp_end_date"].split("/")[0]), int(projects[epic]["exp_end_date"].split("/")[1]))
+			print "Expected business days elapsed: %i" % np.busday_count(start,exp_end)
+		
+		# Actual business days elapsed (using act_end_date if project is completed)
+		if "act_end_date" in projects[epic]:
+			exp_end = dt.date(int(projects[epic]["exp_end_date"].split("/")[2]), int(projects[epic]["exp_end_date"].split("/")[0]), int(projects[epic]["exp_end_date"].split("/")[1]))
+			act_end = dt.date(int(projects[epic]["act_end_date"].split("/")[2]), int(projects[epic]["act_end_date"].split("/")[0]), int(projects[epic]["act_end_date"].split("/")[1]))
+			print "Actual business days elapsed: %i" % np.busday_count(start,act_end)
+			if act_end > exp_end:
+				days_behind = np.busday_count(exp_end,act_end)
+			else:
+				days_behind = 0
+		else:
+			exp_end = dt.date(int(projects[epic]["exp_end_date"].split("/")[2]), int(projects[epic]["exp_end_date"].split("/")[0]), int(projects[epic]["exp_end_date"].split("/")[1]))
+			if start <= today:
+				days_elapsed = np.busday_count(start,today)
+				est_total_days = days_elapsed * 100 / float(percent_completed)
+				est_end = estimate_end_date(start,est_total_days)
+				est_days_remaining = np.busday_count(today,est_end)
+				print "Estimated end date: %s" % est_end.strftime("%m/%d/%Y")
+				print "Estimated business days remaining: %i" % est_days_remaining
+				print "Estimated project completion: %i%%" % (percent_completed)
+				print "Accuracy of estimate: %i%%" %(percent_estimated)
+			else:
+				days_elapsed = 0
+			
+			print "Business days elapsed to date: %i" % days_elapsed
+
+			if today > exp_end:
+				 days_behind = np.busday_count(exp_end,today)
+			else:
+				days_behind = 0
+		
+		print "Business days behind schedule: %i" % days_behind
+
+def estimate_end_date(start_date, days_remaining):
+    est_business_days = days_remaining
+    est_end_date = start_date
+    while est_business_days > 0:
+        est_end_date += datetime.timedelta(days=1)
+        weekday = est_end_date.weekday()
+        if weekday >= 5:
+            continue
+        est_business_days -= 1
+    return est_end_date
 
 with open("projects.txt") as project_file:
 	project_file = project_file.read()
