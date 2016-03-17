@@ -9,6 +9,16 @@ import numpy as np
 import datetime as dt
 import datetime
 import time
+from jira.client import GreenHopper
+
+username = raw_input("Jira username: ")
+password = raw_input("Jira password: ")
+company = raw_input("Company (as used in Jira URL): ")
+jira_url = "https://" + company + ".jira.com"
+options = {
+	'server': jira_url
+}
+gh = GreenHopper(options, basic_auth=(username, password))
 
 def display_project_list(epic_list,display_stats):
 	print "Epic information:"
@@ -60,10 +70,8 @@ def display_project_stats(epic):
 	if "start_date" in projects[epic]:
 		start = dt.date(int(projects[epic]["start_date"].split("/")[2]), int(projects[epic]["start_date"].split("/")[0]), int(projects[epic]["start_date"].split("/")[1]))
 		today = dt.date.today()	
-		percent_completed = 78
-		# percent_completed = {Jira_API_call}.[epicStats][percentageCompleted]
-		percent_estimated = 45
-		# percent_estimated = {Jira_API_call}.[epicStats][percentageEstimated]
+		percent_completed = estimate_percent_complete(epic)[0] * 100
+		percent_estimated = estimate_percent_complete(epic)[1] * 100
 
 		# Expected business days elapsed
 		if "exp_end_date" in projects[epic]:
@@ -81,15 +89,15 @@ def display_project_stats(epic):
 				days_behind = 0
 		else:
 			exp_end = dt.date(int(projects[epic]["exp_end_date"].split("/")[2]), int(projects[epic]["exp_end_date"].split("/")[0]), int(projects[epic]["exp_end_date"].split("/")[1]))
-			if start <= today:
+			if start <= today and percent_completed != 0:
 				days_elapsed = np.busday_count(start,today)
-				est_total_days = days_elapsed * 100 / float(percent_completed)
+				est_total_days = days_elapsed * 100 / percent_completed
 				est_end = estimate_end_date(start,est_total_days)
 				est_days_remaining = np.busday_count(today,est_end)
 				print "Estimated end date: %s" % est_end.strftime("%m/%d/%Y")
 				print "Estimated business days remaining: %i" % est_days_remaining
 				print "Estimated project completion: %i%%" % (percent_completed)
-				print "Accuracy of estimate: %i%%" %(percent_estimated)
+				print "Accuracy of estimate: %i%%" % (percent_estimated)
 			else:
 				days_elapsed = 0
 			
@@ -101,6 +109,31 @@ def display_project_stats(epic):
 				days_behind = 0
 		
 		print "Business days behind schedule: %i" % days_behind
+
+def estimate_percent_complete(epic_link):
+	search_query = '"Epic Link"=' + epic_link
+	issues_in_epic = gh.search_issues(search_query)
+	total_story_points = 0
+	completed_story_points = 0
+	estimated_tickets = 0
+	unestimated_tickets = 0
+
+	for ticket in issues_in_epic:
+		issue_details = gh.issue(ticket).fields
+		
+		if "customfield_10013" in dir(issue_details):
+			story_points = issue_details.customfield_10013
+			if story_points is not None:
+				total_story_points += story_points
+				estimated_tickets += 1
+				if issue_details.status.name in ['Resolved','Closed','Done']:
+					completed_story_points += story_points
+			else:
+				unestimated_tickets += 1
+
+	percentage_completed = completed_story_points / total_story_points
+	percentage_scoped = float(estimated_tickets) / (estimated_tickets + unestimated_tickets)
+	return (percentage_completed,percentage_scoped)
 
 def estimate_end_date(start_date, days_remaining):
     est_business_days = days_remaining
