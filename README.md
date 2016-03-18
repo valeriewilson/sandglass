@@ -21,7 +21,7 @@ Calculated values:
 * Estimated project completion: story points completed / total
 * Accuracy of estimate: tickets with story points / total
 * Business days elapsed to date: today - start date
-* Business days behind schedule: 
+* Business days behind schedule: today - expected end date (if today > expected end date)
 
 III. Notes / Limitations
 -------------------------
