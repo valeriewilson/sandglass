@@ -1,11 +1,15 @@
 {
 	"EPIC-1":{
-		"epic_name": "Project 1"
+		"epic_name": "Project 1",
+		"start_date": "",
+		"exp_end_date": "",
+		"act_end_date":""
 	},
 	"EPIC-2": {
 		"start_date": "12/7/2015",
 		"exp_end_date": "4/22/2016",
-		"epic_name": "Project 2"
+		"epic_name": "Project 2",
+		"act_end_date":""
 	}, 
 	"EPIC-3": {
 		"act_end_date": "10/8/2015", 
