@@ -32,5 +32,5 @@ III. Notes / Limitations
 
 IV. TL;DR (Installation)
 -------------------------
-Download Jira: sudo pip install jira --upgrade --ignore-installed six
-Run the program: python sandglass.py
+* Download Jira: sudo pip install jira --upgrade --ignore-installed six
+* Run the program: python sandglass.py
