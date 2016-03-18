@@ -11,14 +11,16 @@ import datetime
 import time
 from jira.client import GreenHopper
 
-username = raw_input("Jira username: ")
-password = raw_input("Jira password: ")
-company = raw_input("Company (as used in Jira URL): ")
-jira_url = "https://" + company + ".jira.com"
-options = {
-	'server': jira_url
-}
-gh = GreenHopper(options, basic_auth=(username, password))
+def jira_login():
+	username = raw_input("Jira username: ")
+	password = raw_input("Jira password: ")
+	company = raw_input("Company (as used in Jira URL): ")
+	jira_url = "https://" + company + ".jira.com"
+	options = {
+		'server': jira_url
+	}
+	gh = GreenHopper(options, basic_auth=(username, password))
+	return gh
 
 def display_project_list(epic_list,display_stats):
 	print "Epic information:"
@@ -32,7 +34,7 @@ def display_project_list(epic_list,display_stats):
 		if "act_end_date" in projects[epic]:
 			print "Actual end date: " + projects[epic]["act_end_date"]
 		if display_stats:
-			display_project_stats(epic)
+			display_project_stats(epic,gh)
 		else:
 			print "Epic link: " + epic
 		print "----------------"
@@ -66,12 +68,12 @@ def edit_project(epic,field):
 	else:
 		print "%s is an invalid field option." % field
 
-def display_project_stats(epic):
+def display_project_stats(epic,gh_cred):
 	if "start_date" in projects[epic]:
 		start = dt.date(int(projects[epic]["start_date"].split("/")[2]), int(projects[epic]["start_date"].split("/")[0]), int(projects[epic]["start_date"].split("/")[1]))
 		today = dt.date.today()	
-		percent_completed = estimate_percent_complete(epic)[0] * 100
-		percent_estimated = estimate_percent_complete(epic)[1] * 100
+		percent_completed = estimate_percent_complete(epic, gh_cred)[0] * 100
+		percent_estimated = estimate_percent_complete(epic, gh_cred)[1] * 100
 
 		# Expected business days elapsed
 		if "exp_end_date" in projects[epic]:
@@ -110,7 +112,7 @@ def display_project_stats(epic):
 		
 		print "Business days behind schedule: %i" % days_behind
 
-def estimate_percent_complete(epic_link):
+def estimate_percent_complete(epic_link,gh_cred):
 	search_query = '"Epic Link"=' + epic_link
 	issues_in_epic = gh.search_issues(search_query)
 	total_story_points = 0
@@ -177,6 +179,7 @@ while(True):
 
 	elif response == "d":
 		# Exit the program
+		gh = jira_login()
 		break
 	else:
 		print "Invalid input. Please try again."
