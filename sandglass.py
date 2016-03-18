@@ -23,15 +23,14 @@ def jira_login():
 	return gh
 
 def display_project_list(epic_list,display_stats):
-	print "Epic information:"
+	print "--- Epic information ---"
 	for epic in epic_list:
-		if "epic_name" in projects[epic]:
-			print "Project name: " + projects[epic]["epic_name"]
-		if "start_date" in projects[epic]:
+		print "Project name: " + projects[epic]["epic_name"]
+		if projects[epic]["start_date"] != "":
 			print "Start date: " + projects[epic]["start_date"]
-		if "exp_end_date" in projects[epic]:
+		if projects[epic]["exp_end_date"] != "":
 			print "Expected end date: " + projects[epic]["exp_end_date"]
-		if "act_end_date" in projects[epic]:
+		if projects[epic]["act_end_date"] != "":
 			print "Actual end date: " + projects[epic]["act_end_date"]
 		if display_stats:
 			display_project_stats(epic,gh)
@@ -41,47 +40,40 @@ def display_project_list(epic_list,display_stats):
 
 def create_project(epic_list):
 	projects.update({new_epic:{}})
+	projects[new_epic].update({"epic_name":new_epic_name})
+	projects[new_epic].update({"start_date":new_start_date})
+	projects[new_epic].update({"exp_end_date":new_exp_end_date})
+	projects[new_epic].update({"act_end_date":new_act_end_date})
 	print "--New entry--"
 	print "Epic link: " + new_epic
-	if new_epic_name != "":
-		projects[new_epic].update({"epic_name":new_epic_name})
-		print "Project name: " + new_epic_name
-	if new_start_date != "":
-		projects[new_epic].update({"start_date":new_start_date})
-		print "Start date: " + new_start_date
-	if new_exp_end_date != "":
-		projects[new_epic].update({"exp_end_date":new_exp_end_date})
-		print "Planned end date: " + new_exp_end_date
-	if new_act_end_date != "":
-		projects[new_epic].update({"act_end_date":new_act_end_date})
-		print "Actual end date: " + new_act_end_date
+	print "Project name: " + new_epic_name
+	print "Start date: " + new_start_date
+	print "Planned end date: " + new_exp_end_date
+	print "Actual end date: " + new_act_end_date
 
 def edit_project(epic,field):
 	if field in ("epic_name","start_date","exp_end_date","act_end_date"):
-		if field in projects[epic].keys():
-			print "Current value: %s" % projects[epic][field]
-			new_value = raw_input("What is the new value?: ")
-		else:
-			new_value = raw_input("What is the value for this field?: ")
+		print "Current value: %s" % projects[epic][field]
+		new_value = raw_input("What is the new value for this field?: ")
 		projects[epic][field] = new_value
 		print "New value: %s" % projects[epic][field]
 	else:
 		print "%s is an invalid field option." % field
 
 def display_project_stats(epic,gh_cred):
-	if "start_date" in projects[epic]:
+	if projects[epic]["start_date"] != "":
 		start = dt.date(int(projects[epic]["start_date"].split("/")[2]), int(projects[epic]["start_date"].split("/")[0]), int(projects[epic]["start_date"].split("/")[1]))
 		today = dt.date.today()	
 		percent_completed = estimate_percent_complete(epic, gh_cred)[0] * 100
 		percent_estimated = estimate_percent_complete(epic, gh_cred)[1] * 100
 
 		# Expected business days elapsed
-		if "exp_end_date" in projects[epic]:
+		if projects[epic]["exp_end_date"] != "":
 			exp_end = dt.date(int(projects[epic]["exp_end_date"].split("/")[2]), int(projects[epic]["exp_end_date"].split("/")[0]), int(projects[epic]["exp_end_date"].split("/")[1]))
 			print "Expected business days elapsed: %i" % np.busday_count(start,exp_end)
 		
 		# Actual business days elapsed (using act_end_date if project is completed)
-		if "act_end_date" in projects[epic]:
+		if projects[epic]["act_end_date"] != "":
 			exp_end = dt.date(int(projects[epic]["exp_end_date"].split("/")[2]), int(projects[epic]["exp_end_date"].split("/")[0]), int(projects[epic]["exp_end_date"].split("/")[1]))
 			act_end = dt.date(int(projects[epic]["act_end_date"].split("/")[2]), int(projects[epic]["act_end_date"].split("/")[0]), int(projects[epic]["act_end_date"].split("/")[1]))
 			print "Actual business days elapsed: %i" % np.busday_count(start,act_end)
