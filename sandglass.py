@@ -33,7 +33,7 @@ def display_project_list(epic_list,display_stats):
 		if projects[epic]["act_end_date"] != "":
 			print "Actual end date: " + projects[epic]["act_end_date"]
 		if display_stats:
-			display_project_stats(epic,gh)
+			store_display_project_stats(epic,gh)
 		else:
 			print "Epic link: " + epic
 		print "----------------"
@@ -60,49 +60,52 @@ def edit_project(epic,field):
 	else:
 		print "%s is an invalid field option." % field
 
-def display_project_stats(epic,gh_cred):
+def store_display_project_stats(epic,gh_cred):
 	if projects[epic]["start_date"] != "":
 		start = dt.date(int(projects[epic]["start_date"].split("/")[2]), int(projects[epic]["start_date"].split("/")[0]), int(projects[epic]["start_date"].split("/")[1]))
 		today = dt.date.today()	
-		percent_completed = estimate_percent_complete(epic, gh_cred)[0] * 100
-		percent_estimated = estimate_percent_complete(epic, gh_cred)[1] * 100
+		projects[epic]["est_perc_compl"] = estimate_percent_complete(epic, gh_cred)[0] * 100
+		projects[epic]["accuracy"] = estimate_percent_complete(epic, gh_cred)[1] * 100
 
 		# Expected business days elapsed
 		if projects[epic]["exp_end_date"] != "":
 			exp_end = dt.date(int(projects[epic]["exp_end_date"].split("/")[2]), int(projects[epic]["exp_end_date"].split("/")[0]), int(projects[epic]["exp_end_date"].split("/")[1]))
-			print "Expected business days elapsed: %i" % np.busday_count(start,exp_end)
+			projects[epic]["exp_days_elapsed"] = np.busday_count(start,exp_end)
+			print "Expected business days elapsed: %i" % projects[epic]["exp_days_elapsed"]
 		
 		# Actual business days elapsed (using act_end_date if project is completed)
 		if projects[epic]["act_end_date"] != "":
 			exp_end = dt.date(int(projects[epic]["exp_end_date"].split("/")[2]), int(projects[epic]["exp_end_date"].split("/")[0]), int(projects[epic]["exp_end_date"].split("/")[1]))
 			act_end = dt.date(int(projects[epic]["act_end_date"].split("/")[2]), int(projects[epic]["act_end_date"].split("/")[0]), int(projects[epic]["act_end_date"].split("/")[1]))
-			print "Actual business days elapsed: %i" % np.busday_count(start,act_end)
+			projects[epic]["act_days_elapsed"] = np.busday_count(start,act_end)
+			print "Actual business days elapsed: %i" % projects[epic]["act_days_elapsed"]
 			if act_end > exp_end:
-				days_behind = np.busday_count(exp_end,act_end)
+				projects[epic]["bus_days_behind"] = np.busday_count(exp_end,act_end)
 			else:
-				days_behind = 0
+				projects[epic]["bus_days_behind"] = 0
 		else:
 			exp_end = dt.date(int(projects[epic]["exp_end_date"].split("/")[2]), int(projects[epic]["exp_end_date"].split("/")[0]), int(projects[epic]["exp_end_date"].split("/")[1]))
-			if start <= today and percent_completed != 0:
+			if start <= today and projects[epic]["act_end_date"] == "" and projects[epic]["est_perc_compl"] != 0:
 				days_elapsed = np.busday_count(start,today)
-				est_total_days = days_elapsed * 100 / percent_completed
+				est_total_days = days_elapsed * 100 / projects[epic]["est_perc_compl"]
 				est_end = estimate_end_date(start,est_total_days)
-				est_days_remaining = np.busday_count(today,est_end)
-				print "Estimated end date: %s" % est_end.strftime("%m/%d/%Y")
-				print "Estimated business days remaining: %i" % est_days_remaining
-				print "Estimated project completion: %i%%" % (percent_completed)
-				print "Accuracy of estimate: %i%%" % (percent_estimated)
+				projects[epic]["est_end_date"] = est_end.strftime("%m/%d/%Y")
+				projects[epic]["est_days_remaining"] = np.busday_count(today,est_end)
+				print "Estimated end date: %s" % projects[epic]["est_end_date"]
+				print "Estimated business days remaining: %i" % projects[epic]["est_days_remaining"]
+				print "Estimated project completion: %i%%" % projects[epic]["est_perc_compl"]
+				print "Accuracy of estimate: %i%%" % projects[epic]["accuracy"]
 			else:
 				days_elapsed = 0
 			
 			print "Business days elapsed to date: %i" % days_elapsed
 
 			if today > exp_end:
-				 days_behind = np.busday_count(exp_end,today)
+				 projects[epic]["bus_days_behind"] = np.busday_count(exp_end,today)
 			else:
-				days_behind = 0
+				projects[epic]["bus_days_behind"] = 0
 		
-		print "Business days behind schedule: %i" % days_behind
+		print "Business days behind schedule: %i" % projects[epic]["bus_days_behind"]
 
 def estimate_percent_complete(epic_link,gh_cred):
 	search_query = '"Epic Link"=' + epic_link
