@@ -10,6 +10,7 @@ import datetime as dt
 import datetime
 import time
 from jira.client import GreenHopper
+import gantt_chart
 
 def jira_login():
 	username = raw_input("Jira username: ")
@@ -186,3 +187,5 @@ display_project_list(epic_list,display_stats=True)
 with open("projects.txt","w") as project_file:
 	# Update projects.txt with new content
 	json.dump(projects, project_file)
+
+gantt_chart.generate_gantt_chart()
