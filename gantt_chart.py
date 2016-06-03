@@ -4,8 +4,8 @@
 import json
 import datetime as dt
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import matplotlib.font_manager as font_manager
-import matplotlib.dates
 from matplotlib.dates import MONTHLY, DateFormatter, rrulewrapper, RRuleLocator
 from pylab import *
 	
@@ -22,8 +22,6 @@ def format_date(input_date):
 
 def generate_gantt_chart():
 	# Data
-	pos = arange(0.5,7.5,0.5)
-	 
 	ylabels = []
 	customDates = []
 	
@@ -40,23 +38,25 @@ def generate_gantt_chart():
 	task_dates = {}
 	for i,task in enumerate(ylabels):
 		task_dates[task] = customDates[i]
-		print task_dates[task]
 	 
 	# Initialise plot
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
 
-	#Plot the data
-	today = dt.date.today().strftime("%m/%d/%Y")
-	today_date = format_date(today)
+	# Set up legend
+	calculated = mpatches.Patch(color="gold", label="Calculated")
+	planned = mpatches.Patch(color="palegreen", label="Planned")
+	behind = mpatches.Patch(color="lightcoral", label="Behind")
+	actual = mpatches.Patch(color="palegoldenrod", label="Actual")
 
-	start_date,exp_end_date,est_end_date,act_end_date = task_dates[ylabels[0]]
-	ax.barh(0.45, est_end_date - start_date, left=start_date, height=0.3, align='center', color='gold', alpha = 0.75, label = "Calculated")
-	ax.barh(0.45, exp_end_date - start_date, left=start_date, height=0.1, align='center', color='palegreen', alpha = 0.75, label = "Planned")
-	if today_date - exp_end_date > 0:
-		ax.barh(0.45, today_date - exp_end_date, left=exp_end_date, height=0.1, align='center', color='lightcoral', alpha = 0.75, label = "Behind")
-	ax.barh(0.45, exp_end_date - exp_end_date, left=exp_end_date, height=0.1, align='center', color='palegoldenrod', alpha = 0.75, label = "Actual")
-	for i in range(0,len(ylabels)-1):
+	colors = [calculated,planned,behind,actual]
+	labels = [color.get_label() for color in colors]
+	plt.legend(colors, labels)
+
+	# Plot the data
+	today = format_date(dt.date.today().strftime("%m/%d/%Y"))
+
+	for i in range(-1,len(ylabels)-1):
 		start_date,exp_end_date,est_end_date,act_end_date = task_dates[ylabels[i+1]]
 		if start_date != "":
 			if act_end_date == "":
@@ -64,8 +64,8 @@ def generate_gantt_chart():
 					ax.barh((i*0.5)+0.95, est_end_date - start_date, left=start_date, height=0.3, align='center', color='gold', alpha = 0.75)
 				if exp_end_date != "":
 					ax.barh((i*0.5)+0.95, exp_end_date - start_date, left=start_date, height=0.1, align='center', color='palegreen', alpha = 0.75)
-					if today_date - exp_end_date > 0:
-						ax.barh((i*0.5)+0.95, today_date - exp_end_date, left=exp_end_date, height=0.1, align='center', color='lightcoral', alpha = 0.75)
+					if today - exp_end_date > 0:
+						ax.barh((i*0.5)+0.95, today - exp_end_date, left=exp_end_date, height=0.1, align='center', color='lightcoral', alpha = 0.75)
 			else:
 				ax.barh((i*0.5)+0.95, act_end_date - start_date, left=start_date, height=0.3, align='center', color='palegoldenrod', alpha = 0.75)
 				if exp_end_date != "":
@@ -76,6 +76,7 @@ def generate_gantt_chart():
 					ax.barh((i*0.5)+0.95, est_end_date - start_date, left=start_date, height=0.3, align='center', color='gold', alpha = 0.75)
 	 
 	# Format the y-axis
+	pos = arange(0.45,(len(ylabels) / 2),0.5)
 	locsy, labelsy = yticks(pos,ylabels)
 	plt.setp(labelsy, fontsize = 14)
 	 
