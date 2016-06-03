@@ -8,7 +8,7 @@ import matplotlib.font_manager as font_manager
 import matplotlib.dates
 from matplotlib.dates import MONTHLY, DateFormatter, rrulewrapper, RRuleLocator
 from pylab import *
- 
+	
 def format_date(input_date):
 	if input_date != "":
 		month = input_date.split("/")[0]
@@ -19,7 +19,7 @@ def format_date(input_date):
 	else:
 		mdate = ""
 	return mdate
- 
+
 def generate_gantt_chart():
 	# Data
 	pos = arange(0.5,7.5,0.5)
@@ -28,11 +28,11 @@ def generate_gantt_chart():
 	customDates = []
 	
 	for epic in projects:
-		epic_name = projects[epic]["epic_name"]
-	 	start_date = projects[epic]["start_date"]
-		exp_end_date = projects[epic]["exp_end_date"]
-		est_end_date = projects[epic]["est_end_date"]
-		act_end_date = projects[epic]["act_end_date"]
+		epic_name = epic["name"]
+	 	start_date = epic["start_date"]
+		exp_end_date = epic["exp_end_date"]
+		est_end_date = epic["est_end_date"]
+		act_end_date = epic["act_end_date"]
 
 		ylabels.append(epic_name)
 		customDates.append([format_date(start_date),format_date(exp_end_date),format_date(est_end_date),format_date(act_end_date)])
@@ -108,3 +108,5 @@ def generate_gantt_chart():
 with open("projects.txt") as project_file:
    project_file = project_file.read()
    projects = json.loads(project_file)
+
+generate_gantt_chart()
