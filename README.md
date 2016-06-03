@@ -26,13 +26,13 @@ Calculated values:
 
 III. Notes / Limitations
 -------------------------
-* Project in this context are epic-based
+* I use "project" and "epic" interchangeably, even though *technically* they are quite different in Jira (I mean "epic" in both cases)
 * Incomplete projects assume consistent resources (time and human)
 * Business day calculations do not bear in mind holidays, just weekends
-* I use "project" and "epic" interchangeably, even though *technically* they are quite different in Jira (I mean "epic" in both cases)
 
 IV. TL;DR (Installation)
 -------------------------
-* Download Jira: sudo pip install jira --upgrade --ignore-installed six
+* Install Jira: sudo pip install jira --upgrade --ignore-installed six
 * Install Matplotlib: sudo pip install matplotlib
 * Run the program: python sandglass.py
+* Generate the Gantt chart: python gantt_chart.py
