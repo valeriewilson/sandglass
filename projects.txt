@@ -1,20 +1,86 @@
-{
-	"EPIC-1":{
-		"epic_name": "Project 1",
-		"start_date": "",
-		"exp_end_date": "",
-		"act_end_date":""
+[
+	{
+		"act_end_date": "", 
+		"exp_end_date": "5/10/2016", 
+		"exp_days_elapsed": "", 
+		"name": "Project 1", 
+		"est_perc_compl": "",
+		"est_days_remaining": "", 
+		"start_date": "3/17/2016", 
+		"bus_days_behind": "", 
+		"link": "EPIC-1", 
+		"days_elapsed": "",
+		"est_end_date":"5/15/2016",
+		"accuracy": ""	
 	},
-	"EPIC-2": {
-		"start_date": "12/7/2015",
-		"exp_end_date": "4/22/2016",
-		"epic_name": "Project 2",
-		"act_end_date":""
-	}, 
-	"EPIC-3": {
-		"act_end_date": "10/8/2015", 
-		"start_date": "8/8/2015", 
-		"exp_end_date": "10/15/2015", 
-		"epic_name": "Project 3"
+	{
+		"act_end_date": "4/2/2016", 
+		"exp_end_date": "5/27/2016", 
+		"exp_days_elapsed": "", 
+		"name": "Project 2", 
+		"est_perc_compl": "",
+		"est_days_remaining": "", 
+		"start_date": "3/9/2016", 
+		"bus_days_behind": "", 
+		"link": "EPIC-2", 
+		"days_elapsed": "",
+		"est_end_date":"4/3/2016",
+		"accuracy": ""	
+	},
+	{
+		"act_end_date": "", 
+		"exp_end_date": "6/22/2016", 
+		"exp_days_elapsed": "", 
+		"name": "Project 3", 
+		"est_perc_compl": "",
+		"est_days_remaining": "", 
+		"start_date": "4/25/2016", 
+		"bus_days_behind": "", 
+		"link": "EPIC-3", 
+		"days_elapsed": "",
+		"est_end_date":"6/1/2016",
+		"accuracy": ""
+	},
+	{
+		"act_end_date": "4/30/2016", 
+		"exp_end_date": "4/21/2016", 
+		"exp_days_elapsed": "", 
+		"name": "Project 4", 
+		"est_perc_compl": "",
+		"est_days_remaining": "", 
+		"start_date": "4/1/2016", 
+		"bus_days_behind": "", 
+		"link": "EPIC-4", 
+		"days_elapsed": "",
+		"est_end_date":"",
+		"accuracy": ""
+	},
+	{
+		"act_end_date": "", 
+		"exp_end_date": "6/1/2016", 
+		"exp_days_elapsed": "", 
+		"name": "Project 5", 
+		"est_perc_compl": "",
+		"est_days_remaining": "", 
+		"start_date": "5/2/2016", 
+		"bus_days_behind": "", 
+		"link": "EPIC-5", 
+		"days_elapsed": "",
+		"est_end_date":"6/3/2016",
+		"accuracy": ""
+	},
+	{
+		"act_end_date": "6/1/2016", 
+		"exp_end_date": "6/10/2016", 
+		"exp_days_elapsed": "", 
+		"name": "Project 6", 
+		"est_perc_compl": "",
+		"est_days_remaining": "", 
+		"start_date": "5/1/2016", 
+		"bus_days_behind": "", 
+		"link": "EPIC-6", 
+		"days_elapsed": "",
+		"est_end_date":"",
+		"accuracy": ""
 	}
-}
+]

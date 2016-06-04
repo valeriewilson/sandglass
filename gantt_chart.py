@@ -29,12 +29,19 @@ def generate_gantt_chart():
 		epic_name = epic["name"]
 	 	start_date = epic["start_date"]
 		exp_end_date = epic["exp_end_date"]
-		est_end_date = epic["est_end_date"]
 		act_end_date = epic["act_end_date"]
+		if act_end_date != "":
+			est_end_date = ""
+		else:
+			est_end_date = epic["est_end_date"]
+		
+		customDates.append([format_date(start_date),format_date(exp_end_date),format_date(est_end_date),format_date(act_end_date),epic_name])
 
-		ylabels.append(epic_name)
-		customDates.append([format_date(start_date),format_date(exp_end_date),format_date(est_end_date),format_date(act_end_date)])
+	customDates.sort(key=lambda x: (x[2], x[3]))
 
+	for label in customDates:
+		ylabels.append(label.pop())
+	
 	task_dates = {}
 	for i,task in enumerate(ylabels):
 		task_dates[task] = customDates[i]
