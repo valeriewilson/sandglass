@@ -4,9 +4,11 @@ Project tracking tool that integrates with Jira data to estimate project length.
 I. File List
 -------------------------
 * sandglass.py - Executable file that asks for new/updated project information and returns timeline-based metrics
-* gantt_chart.py - Script that generates a Gantt chart
 * projects.txt - Project list in json format based on user inputs when running sandglass.py
 * README - You're looking at it!
+* gantt_chart.py - Script that generates a Gantt chart
+
+![Example Gantt Chart](example_gantt_chart.png?raw=true "Example Gantt Chart")
 
 II. Epic Metrics
 -------------------------
