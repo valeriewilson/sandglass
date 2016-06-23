@@ -54,7 +54,7 @@ def generate_gantt_chart():
 	calculated = mpatches.Patch(color="gold", label="Calculated")
 	planned = mpatches.Patch(color="palegreen", label="Planned")
 	behind = mpatches.Patch(color="lightcoral", label="Behind")
-	actual = mpatches.Patch(color="palegoldenrod", label="Actual")
+	actual = mpatches.Patch(color="lightgrey", label="Actual")
 
 	colors = [calculated,planned,behind,actual]
 	labels = [color.get_label() for color in colors]
@@ -67,13 +67,13 @@ def generate_gantt_chart():
 		start_date,exp_end_date,est_end_date,act_end_date = task_dates[ylabels[i+1]]
 		if start_date != "":
 			if est_end_date != "":
-				ax.barh((i*0.5)+0.95, est_end_date - start_date, left=start_date, height=0.3, align='center', color='gold', alpha = 0.75)
+				ax.barh((i*0.5)+0.95, est_end_date - start_date, left=start_date, height=0.3, align='center', color='gold', alpha = 0.75, edgecolor='gold')
 			if exp_end_date != "":
 				if act_end_date == "":
 					if today > exp_end_date:
 						ax.barh((i*0.5)+0.95, today - exp_end_date, left=exp_end_date, height=0.1, align='center', color='lightcoral', alpha = 0.75)
 				else:
-					ax.barh((i*0.5)+0.95, act_end_date - start_date, left=start_date, height=0.3, align='center', color='palegoldenrod', alpha = 0.75)
+					ax.barh((i*0.5)+0.95, act_end_date - start_date, left=start_date, height=0.3, align='center', color='lightgrey', edgecolor='lightgrey', alpha = 0.75)
 					if act_end_date > exp_end_date:
 						ax.barh((i*0.5)+0.95, act_end_date - exp_end_date, left=exp_end_date, height=0.1, align='center', color='lightcoral', alpha = 0.75)
 				ax.barh((i*0.5)+0.95, exp_end_date - start_date, left=start_date, height=0.1, align='center', color='palegreen', alpha = 0.75)
